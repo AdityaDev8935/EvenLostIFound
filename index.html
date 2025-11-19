@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELIF - Even Lost, I Found</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#3B82F6', 
+                            dark: '#111827', 
+                            gray: '#6B7280', 
+                            card: '#FDF2F2',
+                            bg: '#FAFAFA' // Light gray background for inner pages
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        html { scroll-behavior: smooth; }
+        
+        .nav-link {
+            color: #4B5563;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .nav-link:hover { color: #3B82F6; }
+
+        .nav-link.active {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #3B82F6;
+            border-radius: 2px;
+        }
+
+        /* Animation for view transitions */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-brand-bg font-sans text-slate-900 antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white/95 backdrop-blur-sm z-50 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="router('home')">
+                    <span class="text-2xl font-bold text-brand-blue tracking-tight">ELIF</span>
+                    <span class="text-sm text-slate-400 font-medium hidden sm:block border-l border-slate-300 pl-3 py-1">Even Lost, I Found</span>
+                </div>
+
+                <!-- Desktop Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a onclick="router('home')" id="nav-home" class="nav-link active text-sm font-medium transition-colors">Home</a>
+                    <a onclick="router('lost')" id="nav-lost" class="nav-link text-sm font-medium transition-colors">Lost Items</a>
+                    <a onclick="router('found')" id="nav-found" class="nav-link text-sm font-medium transition-colors">Found Items</a>
+                    <a onclick="router('report')" id="nav-report" class="nav-link text-sm font-medium transition-colors">Report Item</a>
+                </div>
+
+                <!-- Auth Buttons -->
+                <div class="hidden md:flex items-center gap-4">
+                    <button onclick="router('login')" class="px-5 py-2 rounded-lg text-brand-blue border border-brand-blue hover:bg-blue-50 font-medium text-sm transition-colors">
+                        Log in
+                    </button>
+                    <button onclick="router('signup')" class="px-5 py-2 rounded-lg bg-brand-blue text-white hover:bg-blue-700 font-medium text-sm shadow-sm transition-colors hover:shadow-md">
+                        Sign up
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-slate-600 hover:text-brand-blue focus:outline-none">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-100 bg-white absolute w-full">
+            <div class="px-4 pt-2 pb-6 space-y-1 shadow-lg">
+                <a onclick="router('home')" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Home</a>
+                <a onclick="router('lost')" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Lost Items</a>
+                <a onclick="router('found')" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Found Items</a>
+                <a onclick="router('report')" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Report Item</a>
+                <div class="mt-4 flex flex-col gap-3 px-3">
+                    <button onclick="router('login')" class="w-full py-2 rounded-lg text-brand-blue border border-brand-blue font-medium">Log in</button>
+                    <button onclick="router('signup')" class="w-full py-2 rounded-lg bg-brand-blue text-white font-medium">Sign up</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow pt-32 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+
+        <!-- PAGE: HOME -->
+        <div id="view-home" class="page-view fade-in">
+            <!-- Hero -->
+            <div class="text-center max-w-4xl mx-auto mb-20">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
+                    Even Lost, I Found
+                </h1>
+                <p class="text-lg sm:text-xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    The community platform that connects people who have lost items with those who have found them.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
+                    <button onclick="router('report')" class="flex items-center justify-center gap-2 px-8 py-4 bg-brand-blue text-white rounded-lg font-semibold shadow-lg shadow-blue-500/20 hover:shadow-xl hover:bg-blue-600 hover:-translate-y-0.5 transition-all duration-200 group">
+                        <i data-lucide="plus" class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300"></i>
+                        Report an Item
+                    </button>
+                    <button onclick="router('lost')" class="flex items-center justify-center gap-2 px-8 py-4 bg-white text-brand-blue border-2 border-brand-blue/30 rounded-lg font-semibold hover:border-brand-blue hover:bg-blue-50 hover:-translate-y-0.5 transition-all duration-200">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                        Search Lost Items
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 mt-16">
+                <div class="bg-brand-card rounded-2xl p-8 md:p-10 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    <div class="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/50">
+                        <i data-lucide="plus" class="w-8 h-8 text-slate-800 stroke-[1.5]"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Report Lost Items</h3>
+                    <p class="text-slate-600 leading-relaxed">Quickly report your lost items with details and images.</p>
+                </div>
+
+                <div class="bg-brand-card rounded-2xl p-8 md:p-10 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    <div class="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/50">
+                        <i data-lucide="search" class="w-8 h-8 text-slate-800 stroke-[1.5]"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Find Items</h3>
+                    <p class="text-slate-600 leading-relaxed">Search for items by category, location, and date.</p>
+                </div>
+
+                <div class="bg-brand-card rounded-2xl p-8 md:p-10 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    <div class="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/50">
+                        <i data-lucide="shield-check" class="w-8 h-8 text-slate-800 stroke-[1.5]"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Verification System</h3>
+                    <p class="text-slate-600 leading-relaxed">Ensures that items are returned to their rightful owners.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: LOST ITEMS -->
+        <div id="view-lost" class="page-view hidden fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900">Lost Items</h2>
+                    <p class="text-slate-500 mt-1">Help others find their belongings.</p>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <div class="relative w-full md:w-64">
+                        <input type="text" placeholder="Search items..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue/50 focus:border-brand-blue">
+                        <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                    </div>
+                    <button class="px-4 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-600">
+                        <i data-lucide="filter" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="lost-grid">
+                <!-- JS will populate this, but here are static examples -->
+                <!-- Card 1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                    <div class="h-48 bg-slate-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Backpack">
+                        <div class="absolute top-3 right-3 bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-full">LOST</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-slate-900 mb-1">Black Leather Backpack</h3>
+                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">Left it on the subway near Central Station. Contains a laptop and notebooks.</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>
+                            <span>Central Station, NY</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            <span>2 days ago</span>
+                        </div>
+                        <button class="mt-4 w-full py-2 text-sm font-medium text-brand-blue bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">I Found This</button>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                    <div class="h-48 bg-slate-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1585060544812-6b45742d762f?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="iPhone">
+                        <div class="absolute top-3 right-3 bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-full">LOST</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-slate-900 mb-1">iPhone 13 Pro</h3>
+                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">Blue case, cracked screen protector. Last seen at Starbucks.</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>
+                            <span>Downtown Mall</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            <span>Yesterday</span>
+                        </div>
+                        <button class="mt-4 w-full py-2 text-sm font-medium text-brand-blue bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">I Found This</button>
+                    </div>
+                </div>
+                
+                 <!-- Card 3 -->
+                 <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                    <div class="h-48 bg-slate-200 relative overflow-hidden">
+                         <div class="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                             <i data-lucide="image" class="w-12 h-12"></i>
+                         </div>
+                        <div class="absolute top-3 right-3 bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-full">LOST</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-slate-900 mb-1">Gold Necklace</h3>
+                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">Small heart pendant. Sentimental value.</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>
+                            <span>City Park</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            <span>3 days ago</span>
+                        </div>
+                        <button class="mt-4 w-full py-2 text-sm font-medium text-brand-blue bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">I Found This</button>
+                    </div>
+                </div>
+
+                 <!-- Card 4 -->
+                 <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                    <div class="h-48 bg-slate-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Cat">
+                        <div class="absolute top-3 right-3 bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-full">LOST</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-slate-900 mb-1">Tabby Cat "Luna"</h3>
+                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">Orange tabby cat, wearing a pink collar. Very friendly.</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>
+                            <span>Oak Street Residential</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            <span>5 hours ago</span>
+                        </div>
+                        <button class="mt-4 w-full py-2 text-sm font-medium text-brand-blue bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">I Found This</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: FOUND ITEMS -->
+        <div id="view-found" class="page-view hidden fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900">Found Items</h2>
+                    <p class="text-slate-500 mt-1">Browse items found by the community.</p>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <div class="relative w-full md:w-64">
+                        <input type="text" placeholder="Search items..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500">
+                        <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="found-grid">
+                <!-- Found Card 1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                    <div class="h-48 bg-slate-200 relative overflow-hidden">
+                         <img src="https://images.unsplash.com/photo-1559563458-52c69522134a?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Keys">
+                        <div class="absolute top-3 right-3 bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">FOUND</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-slate-900 mb-1">Car Keys (Honda)</h3>
+                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">Found a set of Honda keys with a cute bear keychain.</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>
+                            <span>Library Entrance</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            <span>Today, 10:00 AM</span>
+                        </div>
+                        <button class="mt-4 w-full py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">Claim Item</button>
+                    </div>
+                </div>
+
+                 <!-- Found Card 2 -->
+                 <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                    <div class="h-48 bg-slate-200 relative overflow-hidden">
+                         <img src="https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Watch">
+                        <div class="absolute top-3 right-3 bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">FOUND</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-slate-900 mb-1">Silver Wristwatch</h3>
+                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">Men's silver analog watch found on bench.</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>
+                            <span>West Side Bus Stop</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            <span>Yesterday</span>
+                        </div>
+                        <button class="mt-4 w-full py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">Claim Item</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: REPORT FORM -->
+        <div id="view-report" class="page-view hidden fade-in">
+            <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+    <h2 class="text-2xl font-bold text-slate-900 mb-6">Report an Item</h2>
+    
+    <div class="flex bg-slate-100 p-1 rounded-xl mb-8">
+        <button type="button" id="btn-type-lost" class="flex-1 py-2 rounded-lg bg-white shadow-sm text-slate-900 font-medium text-sm transition-all" onclick="setReportType('Lost')">I Lost Something</button>
+        <button type="button" id="btn-type-found" class="flex-1 py-2 rounded-lg text-slate-500 font-medium text-sm hover:text-slate-900 transition-all" onclick="setReportType('Found')">I Found Something</button>
+    </div>
+
+    <form id="report-form" class="space-y-6">
+        <div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-brand-blue hover:bg-blue-50/30 transition-colors cursor-pointer group" onclick="document.getElementById('file-input').click()">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400 mb-3 group-hover:bg-blue-100 group-hover:text-brand-blue transition-colors">
+                <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+            </div>
+            <p id="file-name-display" class="text-sm font-medium text-slate-700">Click to upload an image</p>
+            <p class="text-xs text-slate-400 mt-1">JPG or PNG</p>
+            <input type="file" id="file-input" class="hidden" accept="image/*" required>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Item Name</label>
+                <input type="text" id="title" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue/50 outline-none" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Category</label>
+                <select class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue/50 outline-none bg-white">
+                    <option>Electronics</option>
+                    <option>Clothing</option>
+                    <option>Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Date</label>
+                <input type="date" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue/50 outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Location</label>
+                <input type="text" id="location" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue/50 outline-none" required>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Description</label>
+            <textarea id="details" rows="4" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue/50 outline-none" required></textarea>
+        </div>
+
+        <div class="pt-4">
+            <button type="submit" class="w-full bg-brand-blue text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20">
+                Submit Report
+            </button>
+        </div>
+    </form>
+</div>
+        </div>
+
+        <!-- PAGE: LOGIN -->
+        <div id="view-login" class="page-view hidden fade-in h-full flex items-center justify-center">
+            <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-slate-100 mx-auto mt-10">
+                <h2 class="text-2xl font-bold text-slate-900 text-center mb-2">Welcome Back</h2>
+                <p class="text-slate-500 text-center mb-8 text-sm">Enter your details to access your account</p>
+                
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input type="email" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue/50 outline-none" placeholder="you@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <input type="password" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue/50 outline-none" placeholder="••••••••">
+                    </div>
+                    <button type="button" onclick="router('home')" class="w-full bg-brand-blue text-white py-2.5 rounded-lg font-semibold hover:bg-blue-600 transition-colors mt-2">
+                        Log In
+                    </button>
+                </form>
+                <p class="text-center text-sm text-slate-500 mt-6">
+                    Don't have an account? <a onclick="router('signup')" class="text-brand-blue font-semibold cursor-pointer hover:underline">Sign up</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- PAGE: SIGN UP -->
+        <div id="view-signup" class="page-view hidden fade-in h-full flex items-center justify-center">
+            <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-slate-100 mx-auto mt-10">
+                <h2 class="text-2xl font-bold text-slate-900 text-center mb-2">Create Account</h2>
+                <p class="text-slate-500 text-center mb-8 text-sm">Join the community to help find lost items</p>
+                
+                <form class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">First Name</label>
+                            <input type="text" class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-brand-blue/50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Last Name</label>
+                            <input type="text" class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-brand-blue/50">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input type="email" class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-brand-blue/50">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <input type="password" class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-brand-blue/50">
+                    </div>
+                    <button type="button" onclick="router('home')" class="w-full bg-brand-blue text-white py-2.5 rounded-lg font-semibold hover:bg-blue-600 transition-colors mt-2">
+                        Sign Up
+                    </button>
+                </form>
+                <p class="text-center text-sm text-slate-500 mt-6">
+                    Already have an account? <a onclick="router('login')" class="text-brand-blue font-semibold cursor-pointer hover:underline">Log in</a>
+                </p>
+            </div>
+        </div>
+
+    </main>
+    
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 py-8 bg-white">
+        <div class="max-w-7xl mx-auto px-4 text-center text-slate-400 text-sm">
+            &copy; 2025 ELIF Community Platform. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Router Function
+        function router(viewId) {
+            // 1. Hide all views
+            const views = document.querySelectorAll('.page-view');
+            views.forEach(view => {
+                view.classList.add('hidden');
+                view.classList.remove('flex'); // remove flex from auth pages
+            });
+
+            // 2. Show target view
+            const target = document.getElementById('view-' + viewId);
+            if (target) {
+                target.classList.remove('hidden');
+                
+                // Special layout for auth pages
+                if (viewId === 'login' || viewId === 'signup') {
+                    target.classList.add('flex'); // restore flex for centering
+                }
+                
+                // Re-run animations
+                target.classList.remove('fade-in');
+                void target.offsetWidth; // trigger reflow
+                target.classList.add('fade-in');
+            }
+
+            // 3. Update Navigation State
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+
+            const activeLink = document.getElementById('nav-' + viewId);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+
+            // 4. Scroll to top
+            window.scrollTo(0, 0);
+
+            // 5. Refresh icons (sometimes needed for dynamic content)
+            lucide.createIcons();
+            
+            // 6. Close mobile menu if open
+            if(isMenuOpen) {
+                toggleMobileMenu();
+            }
+        }
+
+        // Mobile Menu Logic
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        let isMenuOpen = false;
+
+        function toggleMobileMenu() {
+            isMenuOpen = !isMenuOpen;
+            if (isMenuOpen) {
+                mobileMenu.classList.remove('hidden');
+                mobileBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6"></i>';
+            } else {
+                mobileMenu.classList.add('hidden');
+                mobileBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
+            }
+            lucide.createIcons();
+        }
+
+        mobileBtn.addEventListener('click', toggleMobileMenu);
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768 && isMenuOpen) {
+                toggleMobileMenu();
+            }
+        });
+
+        // Initialize defaults
+        router('home');
+    </script>
+    <script>
+    // --- CONFIGURATION ---
+    const API_BASE_URL = 'http://localhost:5000/api/posts'; // Your Backend URL
+
+    // --- STATE ---
+    let currentReportType = 'Lost'; // Default
+
+    // --- 1. HANDLING REPORT FORM ---
+    
+    // Toggle "Lost" vs "Found" buttons
+    function setReportType(type) {
+        currentReportType = type;
+        const btnLost = document.getElementById('btn-type-lost');
+        const btnFound = document.getElementById('btn-type-found');
+
+        if (type === 'Lost') {
+            btnLost.className = "flex-1 py-2 rounded-lg bg-white shadow-sm text-slate-900 font-medium text-sm transition-all";
+            btnFound.className = "flex-1 py-2 rounded-lg text-slate-500 font-medium text-sm hover:text-slate-900 transition-all";
+        } else {
+            btnFound.className = "flex-1 py-2 rounded-lg bg-white shadow-sm text-slate-900 font-medium text-sm transition-all";
+            btnLost.className = "flex-1 py-2 rounded-lg text-slate-500 font-medium text-sm hover:text-slate-900 transition-all";
+        }
+    }
+
+    // Display filename when selected
+    document.getElementById('file-input')?.addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name;
+        if (fileName) document.getElementById('file-name-display').innerText = fileName;
+    });
+
+    // Submit Form Logic
+    document.getElementById('report-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Stop page reload
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.innerText = "Submitting...";
+        submitBtn.disabled = true;
+
+        // Create FormData (Required for file uploads)
+        const formData = new FormData();
+        formData.append('file', document.getElementById('file-input').files[0]);
+        formData.append('title', document.getElementById('title').value);
+        formData.append('type', currentReportType);
+        formData.append('details', document.getElementById('details').value);
+        formData.append('location', document.getElementById('location').value);
+
+        try {
+            const response = await fetch(API_BASE_URL, {
+                method: 'POST',
+                body: formData 
+                // Note: Do NOT set Content-Type header manually when using FormData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Success! Your post is waiting for admin approval.');
+                e.target.reset();
+                document.getElementById('file-name-display').innerText = "Click to upload an image";
+                router('home'); // Go back home
+            } else {
+                alert('Error: ' + (data.msg || 'Something went wrong'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to connect to server.');
+        } finally {
+            submitBtn.innerText = "Submit Report";
+            submitBtn.disabled = false;
+        }
+    });
+
+    // --- 2. FETCHING & DISPLAYING POSTS ---
+
+        // Helper function to create HTML for a card
+    function createCardHTML(post) {
+        // Format date nicely
+        const date = new Date(post.postDate).toLocaleDateString();
+        
+        // 1. Determine Styling & Text based on Type (Lost vs Found)
+        let badgeColor, buttonText, alertMessage;
+
+        if (post.type === 'Lost') {
+            badgeColor = 'bg-red-100 text-red-700';
+            buttonText = 'I Found This'; 
+            alertMessage = `Please contact the owner to return this item:\n\nEmail: student@ritroorkee.com\nPhone: +91 6204437797`;
+        } else {
+            badgeColor = 'bg-green-100 text-green-700';
+            buttonText = 'Claim Item'; 
+            alertMessage = `To verify ownership and claim this item, contact the finder:\n\nEmail: admin@ritroorkee.com\nLocation: ${post.location}`;
+        }
+
+        // 🚨 CRITICAL: This 'return' statement must be here! 🚨
+        return `
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md transition-all group fade-in">
+            <div class="h-48 bg-slate-200 relative overflow-hidden">
+                <img src="${post.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${post.title}">
+                <div class="absolute top-3 right-3 ${badgeColor} text-xs font-bold px-2 py-1 rounded-full uppercase">${post.type}</div>
+            </div>
+            <div class="p-4">
+                <h3 class="font-bold text-slate-900 mb-1">${post.title}</h3>
+                <p class="text-sm text-slate-500 mb-4 line-clamp-2">${post.details}</p>
+                <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                    <i data-lucide="map-pin" class="w-3 h-3"></i>
+                    <span>${post.location}</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-slate-400">
+                    <i data-lucide="calendar" class="w-3 h-3"></i>
+                    <span>${date}</span>
+                </div>
+                
+                <button onclick="alert(\`${alertMessage}\`)" class="mt-4 w-full py-2 text-sm font-medium text-brand-blue bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                    ${buttonText}
+                </button>
+            </div>
+        </div>
+        `;
+    }
+
+
+    // Fetch Function
+    async function fetchAndRenderPosts() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/public`);
+            const posts = await response.json();
+
+            const lostContainer = document.getElementById('lost-grid');
+            const foundContainer = document.getElementById('found-grid');
+
+            // Clear existing static cards
+            if (lostContainer) lostContainer.innerHTML = '';
+            if (foundContainer) foundContainer.innerHTML = '';
+
+            // Filter and Render
+            posts.forEach(post => {
+                const html = createCardHTML(post);
+                
+                if (post.type === 'Lost' && lostContainer) {
+                    lostContainer.innerHTML += html;
+                } else if (post.type === 'Found' && foundContainer) {
+                    foundContainer.innerHTML += html;
+                }
+            });
+
+            // Re-initialize icons for new elements
+            lucide.createIcons();
+
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+        }
+    }
+
+    // --- 3. INTEGRATE WITH YOUR ROUTER ---
+    
+    // We need to modify your existing router function slightly to fetch data when opening pages
+    const originalRouter = window.router; // Save your existing function logic if possible
+    
+    // Overwrite router to add data fetching
+    window.router = function(viewId) {
+        // Call the logic you already wrote (hide/show views)
+        // Copying your exact logic here for safety + adding the fetch call:
+        
+        // 1. Hide all
+        const views = document.querySelectorAll('.page-view');
+        views.forEach(view => {
+            view.classList.add('hidden');
+            view.classList.remove('flex');
+        });
+
+        // 2. Show target
+        const target = document.getElementById('view-' + viewId);
+        if (target) {
+            target.classList.remove('hidden');
+            if (viewId === 'login' || viewId === 'signup') target.classList.add('flex');
+            target.classList.remove('fade-in');
+            void target.offsetWidth;
+            target.classList.add('fade-in');
+        }
+
+        // 3. Nav State
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => link.classList.remove('active'));
+        const activeLink = document.getElementById('nav-' + viewId);
+        if (activeLink) activeLink.classList.add('active');
+
+        // 4. Scroll
+        window.scrollTo(0, 0);
+
+        // 5. Icons
+        lucide.createIcons();
+
+        // --- NEW: Fetch Data if viewing Lists ---
+        if (viewId === 'lost' || viewId === 'found') {
+            fetchAndRenderPosts();
+        }
+    };
+
+    // Initial load
+    fetchAndRenderPosts();
+</script>
+</body>
+</html>
