@@ -41,4 +41,5 @@ const PostSchema = new mongoose.Schema({
 });
 
 // This line registers the schema as a usable model named 'Post'
+
 module.exports = mongoose.model('Post', PostSchema);
